@@ -1,0 +1,48 @@
+{
+  "expenses": [
+    {
+      "_id": "0623c112-0582-4a9b-bbe0-8be2a545a1f8",
+      "vendor": "Cedarstay Hotels",
+      "date": "07/01/2026",
+      "time": "16:03",
+      "paymentMethod": "card",
+      "category": "other",
+      "subtotal": 3590,
+      "tax": 177,
+      "total": 3769,
+      "rawText": "Cedarstay Hotels\n\n56 Civic Center, Mumbai, West\nBengal 997697\n\nCONTACT NO: 9665514626\nDate: Time: 16:03 Table: 11,\n07/01/2026 12\nRECEIPT NO INV-2025-2745\nCUSTOMER - Diya Sharma\nPAYMENT card\nMODE -\nGSTIN: 21INIHBG5941M7Z5\n4 x Veg Biryani 3360.00\n2 x Veg Biryani 3678.00\n2 x Veg Biryani 3658.00\n2 x Hakka Noodles 3538.00\n3 x Hakka Noodles 3657.00\n1 x Butter Naan 3699.00\nSUBTOTAL: 33,590.00\nCGST (2.5%): 89.75\nSGST (2.5%): 89.75\nTOTAL: %3,769.50\n\nTHANK YOU. VISIT AGAIN.\n\nTHANK YOU\n",
+      "summary": "Receipt from Cedarstay Hotels on 07/01/2026 at 16:03. Payment method: Unknown. Category: other. Items: - Unknown item x1 @ $0.00 = $0.00 Total: $33.00.",
+      "items": [
+        {
+          "description": "Unknown item",
+          "quantity": 1,
+          "price": 0,
+          "total": 0
+        }
+      ],
+      "createdAt": "2026-05-18T15:53:21.214Z"
+    },
+    {
+      "_id": "0cc539c0-a310-4d9c-8950-b955ad3bae2f",
+      "vendor": "Cedarstay Hotels",
+      "date": "07/01/2026",
+      "time": "16:03",
+      "paymentMethod": "Unknown",
+      "category": "other",
+      "subtotal": 0,
+      "tax": 0,
+      "total": 33,
+      "rawText": "Cedarstay Hotels\n\n56 Civic Center, Mumbai, West\nBengal 997697\n\nCONTACT NO: 9665514626\nDate: Time: 16:03 Table: 11,\n07/01/2026 12\nRECEIPT NO INV-2025-2745\nCUSTOMER - Diya Sharma\nPAYMENT card\nMODE -\nGSTIN: 21INIHBG5941M7Z5\n4 x Veg Biryani 3360.00\n2 x Veg Biryani 3678.00\n2 x Veg Biryani 3658.00\n2 x Hakka Noodles 3538.00\n3 x Hakka Noodles 3657.00\n1 x Butter Naan 3699.00\nSUBTOTAL: 33,590.00\nCGST (2.5%): 89.75\nSGST (2.5%): 89.75\nTOTAL: %3,769.50\n\nTHANK YOU. VISIT AGAIN.\n\nTHANK YOU\n",
+      "summary": "Receipt from Cedarstay Hotels on 07/01/2026 16:03. Total 33.",
+      "items": [
+        {
+          "description": "Unknown item",
+          "quantity": 1,
+          "price": 0,
+          "total": 0
+        }
+      ],
+      "createdAt": "2026-05-18T15:01:29.204Z"
+    }
+  ]
+}
