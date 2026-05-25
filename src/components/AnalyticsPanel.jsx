@@ -23,12 +23,16 @@ export default function AnalyticsPanel({ analytics }) {
     );
   }
 
+  const categoryTotals = analytics.categoryTotals || {};
+  const monthlyTotals = Array.isArray(analytics.monthlyTotals) ? analytics.monthlyTotals : [];
+  const overallTotal = Number(analytics.overallTotal || 0);
+
   const categoryData = {
-    labels: Object.keys(analytics.categoryTotals),
+    labels: Object.keys(categoryTotals),
     datasets: [
       {
         label: 'Spending by category',
-        data: Object.values(analytics.categoryTotals),
+        data: Object.values(categoryTotals),
         backgroundColor: ['#4f46e5', '#22c55e', '#ec4899', '#f59e0b', '#14b8a6', '#0ea5e9'],
         borderRadius: 12,
         maxBarThickness: 32
@@ -37,11 +41,11 @@ export default function AnalyticsPanel({ analytics }) {
   };
 
   const monthlyData = {
-    labels: analytics.monthlyTotals.map((item) => item.label),
+    labels: monthlyTotals.map((item) => item.label),
     datasets: [
       {
         label: 'Monthly spend',
-        data: analytics.monthlyTotals.map((item) => item.total),
+        data: monthlyTotals.map((item) => item.total),
         borderColor: '#6366f1',
         backgroundColor: 'rgba(99, 102, 241, 0.24)',
         tension: 0.35,
@@ -59,7 +63,7 @@ export default function AnalyticsPanel({ analytics }) {
           <h2 className="text-2xl font-semibold">Spend insights</h2>
         </div>
         <div className="rounded-3xl bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-100">
-          Total spent ${analytics.overallTotal.toFixed(2)}
+          Total spent ${overallTotal.toFixed(2)}
         </div>
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
