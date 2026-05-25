@@ -45,9 +45,10 @@ function App() {
   const fetchHistory = async () => {
     try {
       const res = await axios.get('/api/expenses');
-      setHistory(res.data || []);
+      setHistory(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error(err);
+      setHistory([]);
     }
   };
 
@@ -183,7 +184,8 @@ function App() {
     pdf.save(`expense-report-${Date.now()}.pdf`);
   };
 
-  const filteredHistory = history.filter((entry) => {
+  const safeHistory = Array.isArray(history) ? history : [];
+  const filteredHistory = safeHistory.filter((entry) => {
     const matchSearch = search.trim().length === 0 || [entry.vendor, entry.category, entry.paymentMethod, entry.summary].join(' ').toLowerCase().includes(search.toLowerCase());
     const matchCategory = filterCategory === 'all' || entry.category === filterCategory;
     return matchSearch && matchCategory;
