@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { Moon, Sun, UploadCloud, Search, FileText, Download, Save, CheckCircle2 } from 'lucide-react';
+import { createWorker } from 'tesseract.js';
 import ReceiptUploader from './components/ReceiptUploader.jsx';
 import ExpenseForm from './components/ExpenseForm.jsx';
 import ExpenseHistory from './components/ExpenseHistory.jsx';
@@ -63,28 +64,48 @@ function App() {
 
   const handleParseReceipt = async (file) => {
     setLoading(true);
-    setMessage('Recognizing receipt text and parsing expense details...');
-    const form = new FormData();
-    form.append('receipt', file);
+    setMessage('Recognizing receipt text locally in your browser...');
+    
+    let text = '';
+    try {
+      const worker = await createWorker('eng');
+      const { data } = await worker.recognize(file);
+      text = data.text;
+      await worker.terminate();
+    } catch (ocrError) {
+      console.error('Client-side OCR error:', ocrError);
+    }
 
     try {
-      const { data } = await axios.post('/api/parse', form, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      // API now returns ocr_raw, ocr_cleaned, expense, summary, and optional debug
-      const serverExpense = data.expense || {};
+      let responseData;
+      if (text) {
+        setMessage('Sending recognized text to AI parser...');
+        const { data } = await axios.post('/api/parse', { text });
+        responseData = data;
+      } else {
+        setMessage('Local OCR failed. Uploading receipt image to server...');
+        const form = new FormData();
+        form.append('receipt', file);
+        const { data } = await axios.post('/api/parse', form, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        responseData = data;
+      }
+
+      const serverExpense = responseData.expense || {};
       const parsedExpense = {
         ...defaultExpense,
         ...serverExpense,
         items: serverExpense.items && serverExpense.items.length ? serverExpense.items : defaultExpense.items,
-        rawText: data.ocr_cleaned || data.ocr_raw || ''
+        rawText: responseData.ocr_cleaned || responseData.ocr_raw || ''
       };
-      // attach debug info if present
-      if (data.debug) parsedExpense.debug = data.debug;
+      if (responseData.debug) parsedExpense.debug = responseData.debug;
+      
       setExpense({
         ...parsedExpense,
-        summary: data.summary || parsedExpense.summary || generateSummary(parsedExpense)
+        summary: responseData.summary || parsedExpense.summary || generateSummary(parsedExpense)
       });
+      
       if (parsedExpense.debug) {
         setMessage('Parsed with warnings — check debug panel below.');
       } else {

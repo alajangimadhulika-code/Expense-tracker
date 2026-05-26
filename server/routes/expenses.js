@@ -11,11 +11,16 @@ const useMongo = () => mongoose.connection.readyState === 1;
 
 router.post('/parse', upload.single('receipt'), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'Receipt image is required' });
+    let ocrRaw = '';
+
+    if (req.file) {
+      ocrRaw = await extractText(req.file.buffer);
+    } else if (req.body && req.body.text) {
+      ocrRaw = req.body.text;
+    } else {
+      return res.status(400).json({ error: 'Receipt image or text is required' });
     }
 
-    const ocrRaw = await extractText(req.file.buffer);
     console.log('Route /parse: OCR raw length:', (ocrRaw || '').length);
     const cleaned = cleanOcrText(ocrRaw || '');
     console.log('Route /parse: OCR cleaned length:', cleaned.length);
