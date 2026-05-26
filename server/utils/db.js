@@ -23,6 +23,7 @@ export async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 3000, // Timeout after 3 seconds if DB is unreachable
     };
 
     console.log('Connecting to MongoDB...');
