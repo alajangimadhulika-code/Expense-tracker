@@ -9,9 +9,16 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
+let lastConnectErrorTime = 0;
+const COOLDOWN_MS = 30000; // 30 seconds cooldown before retrying connection
+
 export async function connectDB() {
   if (!MONGO_URI) {
     console.log('MongoDB is not configured (MONGO_URI is missing). Skipping connection, using local storage.');
+    return null;
+  }
+
+  if (Date.now() - lastConnectErrorTime < COOLDOWN_MS) {
     return null;
   }
 
@@ -43,6 +50,7 @@ export async function connectDB() {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
+    lastConnectErrorTime = Date.now();
     throw e;
   }
 
