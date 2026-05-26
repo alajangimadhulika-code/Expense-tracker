@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/expense-tracker';
+const isVercel = process.env.VERCEL === '1' || process.env.NOW_REGION !== undefined;
+const MONGO_URI = process.env.MONGO_URI || (isVercel ? null : 'mongodb://localhost:27017/expense-tracker');
 
 let cached = global.mongoose;
 
@@ -9,6 +10,11 @@ if (!cached) {
 }
 
 export async function connectDB() {
+  if (!MONGO_URI) {
+    console.log('MongoDB is not configured (MONGO_URI is missing). Skipping connection, using local storage.');
+    return null;
+  }
+
   // If already connected, return the connection
   if (mongoose.connection.readyState === 1) {
     return mongoose.connection;

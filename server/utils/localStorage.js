@@ -5,26 +5,49 @@ import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const storagePath = path.resolve(__dirname, '../data/expenses.json');
+
+const isVercel = process.env.VERCEL === '1' || process.env.NOW_REGION !== undefined;
+const storagePath = isVercel
+  ? '/tmp/expenses.json'
+  : path.resolve(__dirname, '../data/expenses.json');
+
+let inMemoryExpenses = [];
 
 async function ensureStorage() {
   try {
     await fs.access(storagePath);
   } catch {
-    await fs.mkdir(path.dirname(storagePath), { recursive: true });
-    await fs.writeFile(storagePath, JSON.stringify({ expenses: [] }, null, 2), 'utf-8');
+    try {
+      await fs.mkdir(path.dirname(storagePath), { recursive: true });
+      await fs.writeFile(storagePath, JSON.stringify({ expenses: [] }, null, 2), 'utf-8');
+    } catch (writeError) {
+      console.warn('Could not create storage file on disk. Using in-memory fallback:', writeError.message);
+    }
   }
 }
 
 export async function readExpensesFromFile() {
-  await ensureStorage();
-  const raw = await fs.readFile(storagePath, 'utf-8');
-  const data = JSON.parse(raw);
-  return Array.isArray(data.expenses) ? data.expenses : [];
+  try {
+    await ensureStorage();
+    const raw = await fs.readFile(storagePath, 'utf-8');
+    const data = JSON.parse(raw);
+    return Array.isArray(data.expenses) ? data.expenses : [];
+  } catch (err) {
+    console.warn('Falling back to in-memory storage because reading file failed:', err.message);
+    return inMemoryExpenses;
+  }
 }
 
 export async function saveExpenseToFile(payload) {
-  const expenses = await readExpensesFromFile();
+  let expenses = [];
+  let useInMemory = false;
+  try {
+    expenses = await readExpensesFromFile();
+  } catch (err) {
+    expenses = inMemoryExpenses;
+    useInMemory = true;
+  }
+
   const expense = {
     _id: payload._id || crypto.randomUUID(),
     vendor: payload.vendor || '',
@@ -52,7 +75,17 @@ export async function saveExpenseToFile(payload) {
       : [],
     createdAt: payload.createdAt || new Date().toISOString()
   };
+
   expenses.unshift(expense);
-  await fs.writeFile(storagePath, JSON.stringify({ expenses }, null, 2), 'utf-8');
+  inMemoryExpenses = expenses;
+
+  if (!useInMemory) {
+    try {
+      await fs.writeFile(storagePath, JSON.stringify({ expenses }, null, 2), 'utf-8');
+    } catch (writeErr) {
+      console.warn('Failed to write expense to disk, kept in-memory:', writeErr.message);
+    }
+  }
+
   return expense;
 }
